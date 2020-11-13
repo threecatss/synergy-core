@@ -13,6 +13,11 @@ steps:
 
   - task: CmdLine@2
     inputs:
+      script: 'brew install create-dmg'
+    displayName: 'Installing Create DMG'
+
+  - task: CmdLine@2
+    inputs:
       script: |
         export PATH="$(QT_PATH):$PATH"
         mkdir build
@@ -76,7 +81,19 @@ steps:
   - task: CmdLine@2
     inputs:
       script: |
-        hdiutil create -volname Synergy -srcfolder $(Build.Repository.LocalPath)/build/bundle/ -ov -format UDZO $(SYNERGY_DMG_FILENAME)
+        create-dmg \
+          --volname "Synergy" \
+          --volicon "$(Build.Repository.LocalPath)/build/bundle/Synergy.app/Contents/Resources/Synergy.icns" \
+          --background "$(Build.Repository.LocalPath)/build/bundle/Synergy.app/Contents/Resources/installer_background.png" \
+          --window-pos 200 120 \
+          --window-size 600 400 \
+          --icon-size 100 \
+          --icon "Synergy" 150 190 \
+          --hide-extension "Synergy.app" \
+          --app-drop-link 455 190 \
+          --hdiutil-quiet \
+          $(SYNERGY_DMG_FILENAME) \
+          "$(Build.Repository.LocalPath)/build/bundle/"
         mkdir pkg
         mv $(SYNERGY_DMG_FILENAME) pkg/
         cd pkg
